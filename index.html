@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { text-align: center; padding: 20px; font-family: Arial; }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <h3>请选择支付方式</h3>
+    <div class="container">
+        <!-- 直接引用本地图片 -->
+        <div>
+            <p>微信支付</p >
+            < img src="./image/wxQrCode.png" alt="微信收款码" />
+        </div>
+        <div>
+            <p>支付宝</p >
+            < img src="./image/wxQrCode.png" alt="支付宝收款码" />
+        </div>
+    </div>
+    <p>长按保存图片，打开对应APP扫码付款</p >
+</body>
+</html>
