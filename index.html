@@ -1,45 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>支付宝付款</title>
     <style>
-        body { text-align: center; padding: 20px; font-family: Arial; }
-        img { 
-            max-width: 100%; 
-            height: auto; 
-            border: 1px solid #ddd;
-            margin: 10px;
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
         }
-        .container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+        h2 {
+            color: #1677FF;
+        }
+        .btn {
+            display: block;
+            width: 80%;
+            margin: 15px auto;
+            padding: 12px 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-open {
+            background-color: #1677FF;
+            color: white;
+        }
+        .btn-download {
+            background-color: #00AAEE;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .tips {
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 20px auto;
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 直接引用本地图片 -->
-        <div>
-            <p>打开支付宝</p >
-            <img src="image/wxQrCode.png" alt="微信收款码"/>
-        </div>
-        <div>
-            <p>下载支付宝</p>
-            <img src="image/wxQrCode.png" alt="支付宝收款码"/>
-        </div>
-    </div>
+    <img src="https://img.alicdn.com/tfs/TB13DzOjXP7gK0jSZFjXXc5aXXa-212-48.png" alt="支付宝" class="logo">
+    <h2>请使用支付宝完成付款</h2>
+    
+    <!-- 打开支付宝按钮 -->
+    <button class="btn btn-open" onclick="openAlipay()">打开支付宝</button>
+    
+    <!-- 下载支付宝按钮 -->
+    <button class="btn btn-download" onclick="downloadAlipay()">下载支付宝APP</button>
+    
+    <p class="tips">如果无法跳转，请先下载并安装支付宝</p>
+
+    <script>
+        // 支付宝收款码链接
+        const alipayUrl = "https://qr.alipay.com/fkx18291ulr1wvod3inatba";
+        
+        // 打开支付宝
+        function openAlipay() {
+            // 先尝试用alipays://协议直接打开APP
+            const alipayScheme = "alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data={\"s\":\"money\",\"u\":\"YOUR_ALIPAY_ACCOUNT\"}";
+            
+            // 创建隐藏iframe尝试跳转
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = alipayScheme;
+            document.body.appendChild(iframe);
+            
+            // 3秒后检测是否跳转成功
+            setTimeout(function() {
+                document.body.removeChild(iframe);
+                // 如果还在当前页面，则跳转网页版
+                window.location.href = alipayUrl;
+            }, 3000);
+        }
+        
+        // 下载支付宝
+        function downloadAlipay() {
+            // 判断设备类型
+            const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const downloadUrl = isiOS ? 
+                "https://apps.apple.com/cn/app/%E6%94%AF%E4%BB%98%E5%AE%9D-%E8%AE%A9%E7%94%9F%E6%B4%BB%E6%9B%B4%E7%AE%80%E5%8D%95/id333206289" :
+                "https://dl.alipay.com/alipaydesktop/alipay_app.latest.apk";
+            
+            window.location.href = downloadUrl;
+        }
+        
+        // 自动检测是否在微信内
+        window.onload = function() {
+            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+            if (isWeChat) {
+                alert("微信内无法直接打开支付宝，请点击右上角...选择在浏览器打开");
+            }
+        };
+    </script>
 </body>
 </html>
-
-<script>
-    window.onload = function() {
-        var alipayUrl = "alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data={"s":"money","u":"15798018560","a":"100","m":"测试转账"}";
-        window.location.href = alipayUrl;
-        
-        // 如果没跳转（比如在微信内），提示用户用浏览器打开
-        // setTimeout(function() {
-        //     alert("请在浏览器打开或复制链接到支付宝");
-        // }, 1000);
-    };
-</script>
