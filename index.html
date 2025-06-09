@@ -1,42 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>唤起支付宝转账</title>
-  <style>
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      background-color: #1677ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
+  <title>支付宝转账引导</title>
 </head>
 <body>
   <button id="openAlipayBtn">打开支付宝转账</button>
-
+  
   <script>
-    document.getElementById('openAlipayBtn').addEventListener('click', function () {
-      // 支付宝收款码的 Scheme（关键！需替换为实际收款码的唤起链接）
-      // 注意：实际需通过支付宝开放平台或收款码生成工具获取合法链接
-      const alipayScheme = 'alipays://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/fkx18291ulr1wvod3inatba';
-
-      // 尝试唤起支付宝 App
+    document.getElementById('openAlipayBtn').addEventListener('click', function() {
+      // 替换为实际的收款码链接
+      const qrCodeUrl = 'hhttps://qr.alipay.com/fkx176159koejhccuyxx83f';
+      
+      // 拼接唤起URL
+      const alipayScheme = `alipays://platformapi/startapp?saId=10000007&qrcode=${encodeURIComponent(qrCodeUrl)}`;
+      
+      // 尝试唤起支付宝
       window.location.href = alipayScheme;
-
-      // 兜底逻辑：若未唤起 App，提示用户手动操作
-      const checkTimer = setInterval(() => {
-        if (document.hidden) { // 页面隐藏，说明唤起了 App
-          clearInterval(checkTimer);
-        }
-      }, 1000);
-
+      
+      // 兜底逻辑：若未唤起App，提示用户
       setTimeout(() => {
-        clearInterval(checkTimer);
         alert('未检测到支付宝App，请手动打开支付宝扫码转账');
       }, 3000);
     });
