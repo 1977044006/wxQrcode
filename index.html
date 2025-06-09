@@ -1,127 +1,114 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支付宝付款唤起示例</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1677ff',
-                        secondary: '#00a0e9',
-                        neutral: '#f5f7fa',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .btn-hover {
-                @apply transform transition-all duration-300 hover:scale-105 hover:shadow-lg;
-            }
-            .gradient-bg {
-                @apply bg-gradient-to-br from-primary to-secondary;
-            }
-        }
-    </style>
-</head>
-<body class="bg-neutral min-h-screen flex flex-col items-center justify-center p-4">
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
-        <div class="gradient-bg p-6 text-white">
-            <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold">支付宝付款示例</h1>
-            <p class="mt-2 opacity-90">通过此页面可以尝试唤起支付宝付款页面</p>
-        </div>
-        <div class="p-6">
-            <div id="status" class="mb-6 p-4 rounded-lg bg-gray-100 text-gray-700">
-                <p>点击下方按钮开始唤起支付宝付款页面</p>
-            </div>
-            
-            <div class="flex flex-col gap-4">
-                <button id="alipayBtn" class="gradient-bg text-white py-3 px-6 rounded-lg font-medium btn-hover flex items-center justify-center">
-                    <i class="fa fa-alipay mr-2 text-xl"></i>
-                    <span>唤起支付宝付款</span>
-                </button>
-                
-                <button id="testBtn" class="bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-medium btn-hover flex items-center justify-center">
-                    <i class="fa fa-credit-card mr-2"></i>
-                    <span>测试付款链接</span>
-                </button>
-            </div>
-            
-            <div class="mt-8 text-sm text-gray-500">
-                <p>注意事项：</p>
-                <ul class="list-disc list-inside mt-2 space-y-1">
-                    <li>需要在已安装支付宝的设备上使用</li>
-                    <li>实际生产环境需要使用合法的支付参数</li>
-                    <li>个人无法随意构造他人收款链接</li>
-                </ul>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        // 支付宝Scheme示例（实际应用中需替换为合法的支付链接）
-        const alipayScheme = "alipays://platformapi/startapp?appId=20000056";
-        
-        // 测试用的收款链接（实际应用中需替换为合法的支付链接）
-        const testScheme = "alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data=%7B%22s%22%3A%22money%22%2C%22u%22%3A%22你的支付宝账号%22%7D";
-        
-        // 状态显示元素
-        const statusEl = document.getElementById('status');
-        
-        // 唤起支付宝的函数
-        function openAlipay(scheme) {
-            statusEl.innerHTML = '<p class="text-primary">正在尝试唤起支付宝...</p>';
-            
-            // 记录点击时间
-            const startTime = Date.now();
-            
-            // 尝试打开支付宝
-            window.location.href = scheme;
-            
-            // 检测是否成功唤起
-            const checkTimeout = setTimeout(() => {
-                const elapsedTime = Date.now() - startTime;
-                
-                // 如果时间超过3秒，可能未成功唤起
-                if (elapsedTime > 3000) {
-                    statusEl.innerHTML = `
-                        <p class="text-red-500">唤起失败</p>
-                        <p class="text-gray-600 mt-1">请检查是否安装了支付宝App</p>
-                    `;
-                }
-            }, 3000);
-            
-            // 监听页面隐藏/显示事件，判断是否成功唤起
-            document.addEventListener('visibilitychange', function() {
-                if (document.hidden) {
-                    // 页面隐藏，可能成功唤起了支付宝
-                    clearTimeout(checkTimeout);
-                    statusEl.innerHTML = '<p class="text-green-500">已成功唤起支付宝</p>';
-                }
-            });
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 适配移动端，可按需调整 -->
+  <title>支付宝付款引导</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    .btn-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #fff;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .open-alipay {
+      background-color: #28a745;
+      /* 支付宝关联色调，可自定义 */
+    }
+
+    .download-alipay {
+      background-color: #ff9900;
+      /* 引导下载色调，可自定义 */
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    #tips {
+      margin-top: 24px;
+      color: #666;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="btn-container">
+    <button class="btn open-alipay" id="openAlipayBtn">打开支付宝付款</button>
+    <button class="btn download-alipay" id="downloadAlipayBtn">下载支付宝</button>
+  </div>
+  <div id="tips">
+    <p>点击“打开支付宝付款”将尝试唤起支付宝App直达付款页</p>
+    <p>若未安装支付宝，点击“下载支付宝”前往应用商店</p>
+  </div>
+
+  <script>
+    // 支付宝Scheme链接，拼接收款人信息（需注意：实际需通过支付宝官方接口获取合法参数，这里仅演示格式 ）
+    // 收款人账号：15079768660 ，收款人名称：高章华 
+    // 以下是模拟构造的Scheme，实际业务中需严格遵循支付宝开放平台规则，否则可能无法生效！
+    const alipayScheme = `alipays://platformapi/startapp?appId=20000123&actionType=transfer&biz_data={"s":"money","u":"15079768660","n":"高章华"}`;
+
+    // 支付宝下载链接（iOS和Android通用，部分应用商店可能需调整）
+    const alipayDownloadUrl = 'https://d.alipay.com'; 
+
+    // 绑定“打开支付宝”按钮事件
+    document.getElementById('openAlipayBtn').addEventListener('click', function () {
+      // 尝试唤起支付宝App
+      window.location.href = alipayScheme;
+
+      // 检测是否唤起成功（通过延迟判断页面是否隐藏，简单模拟，实际需更完善逻辑 ）
+      const startTime = Date.now();
+      const checkInterval = setInterval(() => {
+        if (Date.now() - startTime > 3000) { 
+          // 3秒后仍未唤起，提示引导下载
+          alert('未检测到支付宝App，请先下载');
+          clearInterval(checkInterval);
         }
-        
-        // 绑定按钮事件
-        document.getElementById('alipayBtn').addEventListener('click', () => {
-            openAlipay(alipayScheme);
-        });
-        
-        document.getElementById('testBtn').addEventListener('click', () => {
-            openAlipay(testScheme);
-        });
-    </script>
+      }, 1000);
+
+      // 监听页面可见性变化，若唤起成功则清除检测
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { 
+          // 页面隐藏，说明唤起了App
+          clearInterval(checkInterval);
+        }
+      });
+    });
+
+    // 绑定“下载支付宝”按钮事件
+    document.getElementById('downloadAlipayBtn').addEventListener('click', function () {
+      window.location.href = alipayDownloadUrl;
+    });
+  </script>
 </body>
+
 </html>
-    
