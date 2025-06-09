@@ -3,85 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支付宝付款</title>
-    <script>
-        // 配置参数（修改这里）
-        const paymentConfig = {
-            account: "15798018560",  // 你的支付宝账号
-            name: "陈鹏",                  // 支付宝实名姓名
-            amount: "",                   // 固定金额（可选）
-            remark: "商品付款"                   // 备注（可选）
-        };
-
-        // 生成支付宝深度链接
-        function generateAlipayLink() {
-            const bizData = {
-                s: "money",
-                u: paymentConfig.account,
-                ...(paymentConfig.amount && { a: paymentConfig.amount }),
-                ...(paymentConfig.remark && { m: paymentConfig.remark })
-            };
-            return `alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data=${encodeURIComponent(JSON.stringify(bizData))}`;
-        }
-
-        // 自动跳转支付宝
-        function autoRedirect() {
-            const deepLink = generateAlipayLink();
-            
-            // 方法1：直接跳转（Android）
-            window.location.href = deepLink;
-            
-            // 方法2：iframe跳转（iOS兼容）
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = deepLink;
-            document.body.appendChild(iframe);
-            
-            // 跳转检测（2秒超时）
-            setTimeout(() => {
-                document.body.removeChild(iframe);
-                
-                // 跳转失败处理
-                if (!document.hidden) {
-                    if (/MicroMessenger/i.test(navigator.userAgent)) {
-                        // 微信内显示提示
-                        document.body.innerHTML = `
-                            <div style="padding:20px;text-align:center;">
-                                <h2 style="color:#f44336;">微信内无法直接打开支付宝</h2>
-                                <p>请点击右上角...选择「在浏览器打开」</p>
-                                <p>或手动复制账号到支付宝转账：</p>
-                                <p><strong>账号：${paymentConfig.account}</strong></p>
-                                <p><strong>姓名：${paymentConfig.name}</strong></p>
-                            </div>
-                        `;
-                    } else {
-                        // 其他浏览器使用官方H5跳转
-                        const h5Url = `https://render.alipay.com/p/s/i?scheme=${encodeURIComponent(deepLink)}`;
-                        window.location.href = h5Url;
-                    }
-                }
-            }, 2000);
-        }
-
-        // 页面加载立即执行
-        window.onload = autoRedirect;
-    </script>
+    <title>支付宝收款码唤起示例</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            background: #f5f5f5;
+            font-family: "Arial", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
         }
-        .loading {
-            margin-top: 50px;
-            color: #1677FF;
+        .btn {
+            background-color: #1677ff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #096dd9;
         }
     </style>
 </head>
 <body>
-    <div class="loading">
-        <p>正在跳转到支付宝...</p>
-    </div>
+    <button class="btn" id="payButton">向陈鹏付款</button>
+
+    <script>
+        // 支付宝收钱码链接（你的实际链接）
+        const alipayQrCodeUrl = "https://qr.alipay.com/fkx18291ulr1wvod3inatba";
+        // 收款人名称（需与收款码对应，仅用于显示）
+        const payeeName = "陈鹏";
+
+        // 处理唤起支付宝的函数
+        function openAlipayPayment() {
+            // 尝试通过Scheme协议唤起支付宝（需用户主动点击）
+            const schemeUrl = `alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data={"s":"money","u":"${alipayQrCodeUrl.replace("https://qr.alipay.com/", "")}"}`;
+            
+            // 创建临时iframe触发跳转（部分浏览器可能拦截window.location直接跳转）
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = schemeUrl;
+            document.body.appendChild(iframe);
+            
+            // 状态提示（可根据需求扩展）
+            alert(`即将打开支付宝向 ${payeeName} 付款`);
+            
+            // 延迟移除iframe（避免内存占用）
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 1000);
+        }
+
+        // 绑定点击事件
+        document.getElementById('payButton').addEventListener('click', openAlipayPayment);
+    </script>
 </body>
 </html>
