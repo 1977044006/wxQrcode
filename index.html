@@ -18,18 +18,28 @@
     </style>
 </head>
 <body>
-    <h3>请选择支付方式</h3>
     <div class="container">
         <!-- 直接引用本地图片 -->
         <div>
-            <p>微信支付</p >
+            <p>打开支付宝</p >
             <img src="image/wxQrCode.png" alt="微信收款码"/>
         </div>
         <div>
-            <p>支付宝</p>
+            <p>下载支付宝</p>
             <img src="image/wxQrCode.png" alt="支付宝收款码"/>
         </div>
     </div>
-    <p>长按保存图片，打开对应APP扫码付款</p >
 </body>
 </html>
+
+<script>
+    window.onload = function() {
+        var alipayUrl = "alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data={"s":"money","u":"15798018560","a":"100","m":"测试转账"}";
+        window.location.href = alipayUrl;
+        
+        // 如果没跳转（比如在微信内），提示用户用浏览器打开
+        // setTimeout(function() {
+        //     alert("请在浏览器打开或复制链接到支付宝");
+        // }, 1000);
+    };
+</script>
