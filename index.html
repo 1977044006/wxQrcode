@@ -1,114 +1,45 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- 适配移动端，可按需调整 -->
-  <title>支付宝付款引导</title>
+  <title>唤起支付宝转账</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      background-color: #f5f5f5;
-    }
-
-    .btn-container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: 80%;
-      max-width: 300px;
-    }
-
-    .btn {
+    button {
       padding: 12px 24px;
+      font-size: 16px;
+      background-color: #1677ff;
+      color: white;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
-      color: #fff;
       cursor: pointer;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .open-alipay {
-      background-color: #28a745;
-      /* 支付宝关联色调，可自定义 */
-    }
-
-    .download-alipay {
-      background-color: #ff9900;
-      /* 引导下载色调，可自定义 */
-    }
-
-    .btn:hover {
-      opacity: 0.9;
-      transform: scale(1.02);
-    }
-
-    #tips {
-      margin-top: 24px;
-      color: #666;
-      font-size: 14px;
-      text-align: center;
     }
   </style>
 </head>
-
 <body>
-  <div class="btn-container">
-    <button class="btn open-alipay" id="openAlipayBtn">打开支付宝付款</button>
-    <button class="btn download-alipay" id="downloadAlipayBtn">下载支付宝</button>
-  </div>
-  <div id="tips">
-    <p>点击“打开支付宝付款”将尝试唤起支付宝App直达付款页</p>
-    <p>若未安装支付宝，点击“下载支付宝”前往应用商店</p>
-  </div>
+  <button id="openAlipayBtn">打开支付宝转账</button>
 
   <script>
-    // 支付宝Scheme链接，拼接收款人信息（需注意：实际需通过支付宝官方接口获取合法参数，这里仅演示格式 ）
-    // 收款人账号：15079768660 ，收款人名称：高章华 
-    // 以下是模拟构造的Scheme，实际业务中需严格遵循支付宝开放平台规则，否则可能无法生效！
-    const alipayScheme = `alipays://platformapi/startapp?appId=20000123&actionType=transfer&biz_data={"s":"money","u":"15079768660","n":"高章华"}`;
-
-    // 支付宝下载链接（iOS和Android通用，部分应用商店可能需调整）
-    const alipayDownloadUrl = 'https://d.alipay.com'; 
-
-    // 绑定“打开支付宝”按钮事件
     document.getElementById('openAlipayBtn').addEventListener('click', function () {
-      // 尝试唤起支付宝App
+      // 支付宝收款码的 Scheme（关键！需替换为实际收款码的唤起链接）
+      // 注意：实际需通过支付宝开放平台或收款码生成工具获取合法链接
+      const alipayScheme = 'alipays://platformapi/startapp?saId=10000007&qrcode=https://qr.alipay.com/fkx18291ulr1wvod3inatba';
+
+      // 尝试唤起支付宝 App
       window.location.href = alipayScheme;
 
-      // 检测是否唤起成功（通过延迟判断页面是否隐藏，简单模拟，实际需更完善逻辑 ）
-      const startTime = Date.now();
-      const checkInterval = setInterval(() => {
-        if (Date.now() - startTime > 3000) { 
-          // 3秒后仍未唤起，提示引导下载
-          alert('未检测到支付宝App，请先下载');
-          clearInterval(checkInterval);
+      // 兜底逻辑：若未唤起 App，提示用户手动操作
+      const checkTimer = setInterval(() => {
+        if (document.hidden) { // 页面隐藏，说明唤起了 App
+          clearInterval(checkTimer);
         }
       }, 1000);
 
-      // 监听页面可见性变化，若唤起成功则清除检测
-      document.addEventListener('visibilitychange', function () {
-        if (document.hidden) { 
-          // 页面隐藏，说明唤起了App
-          clearInterval(checkInterval);
-        }
-      });
-    });
-
-    // 绑定“下载支付宝”按钮事件
-    document.getElementById('downloadAlipayBtn').addEventListener('click', function () {
-      window.location.href = alipayDownloadUrl;
+      setTimeout(() => {
+        clearInterval(checkTimer);
+        alert('未检测到支付宝App，请手动打开支付宝扫码转账');
+      }, 3000);
     });
   </script>
 </body>
-
 </html>
