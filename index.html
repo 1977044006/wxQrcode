@@ -57,7 +57,7 @@
     <h2>请使用支付宝完成付款</h2>
     
     <!-- 打开支付宝按钮 -->
-    <button class="btn btn-open" onclick="openAlipay()">打开支付宝</button>
+    <button class="btn btn-open" onclick="openAlipay()">打开支付宝转账</button>
     
     <!-- 下载支付宝按钮 -->
     <button class="btn btn-download" onclick="downloadAlipay()">下载支付宝APP</button>
@@ -98,13 +98,6 @@
             window.location.href = downloadUrl;
         }
         
-        // 自动检测是否在微信内
-        window.onload = function() {
-            const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
-            if (isWeChat) {
-                alert("微信内无法直接打开支付宝，请点击右上角...选择在浏览器打开");
-            }
-        };
     </script>
 </body>
 </html>
