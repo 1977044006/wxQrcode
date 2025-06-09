@@ -3,135 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>支付宝转账</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h2 {
-            color: #1677FF;
-            margin-bottom: 20px;
-        }
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 12px 0;
-            margin: 15px 0;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-pay {
-            background: linear-gradient(90deg, #1677FF, #00AAEE);
-            color: white;
-        }
-        .btn-download {
-            background: #f8f8f8;
-            color: #1677FF;
-            border: 1px solid #1677FF;
-        }
-        .tips {
-            margin-top: 20px;
-            color: #666;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .account-info {
-            background: #f0f7ff;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 20px 0;
-            font-size: 15px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>支付宝转账</h2>
-        
-        <button class="btn btn-pay" onclick="openAlipay()">立即跳转支付宝转账</button>
-        
-        <button class="btn btn-download" onclick="downloadAlipay()">下载支付宝APP</button>
-        
-        <div class="tips">
-            <p>如果无法自动跳转：</p>
-            <p>1. 请确保已安装支付宝APP</p>
-            <p>2. 在浏览器中打开本页面</p>
-            <p>3. 或手动复制账号到支付宝转账</p>
-        </div>
-    </div>
-
+    <title>支付宝付款</title>
     <script>
         // 配置参数（修改这里）
-        const config = {
-            account: "15798018560", // 你的支付宝账号（邮箱/手机号）
-            name: "陈鹏",                     // 你的支付宝实名
-            amount: "",                           // 固定金额（可选），如 "100"
-            remark: "转账备注"                     // 默认备注（可选）
+        const paymentConfig = {
+            account: "your_alipay@example.com",  // 你的支付宝账号
+            name: "收款人姓名",                  // 支付宝实名姓名
+            amount: "100.00",                   // 固定金额（可选）
+            remark: "商品付款"                   // 备注（可选）
         };
 
-        // 生成支付宝转账链接
-        function generateAlipayUrl() {
+        // 生成支付宝深度链接
+        function generateAlipayLink() {
             const bizData = {
                 s: "money",
-                u: config.account,
-                ...(config.amount && { a: config.amount }),
-                ...(config.remark && { m: config.remark })
+                u: paymentConfig.account,
+                ...(paymentConfig.amount && { a: paymentConfig.amount }),
+                ...(paymentConfig.remark && { m: paymentConfig.remark })
             };
             return `alipays://platformapi/startapp?appId=20000123&actionType=scan&biz_data=${encodeURIComponent(JSON.stringify(bizData))}`;
         }
 
-        // 打开支付宝转账
-        function openAlipay() {
-            const alipayUrl = generateAlipayUrl();
+        // 自动跳转支付宝
+        function autoRedirect() {
+            const deepLink = generateAlipayLink();
             
-            // 尝试直接跳转（使用iframe兼容iOS）
+            // 方法1：直接跳转（Android）
+            window.location.href = deepLink;
+            
+            // 方法2：iframe跳转（iOS兼容）
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
-            iframe.src = alipayUrl;
+            iframe.src = deepLink;
             document.body.appendChild(iframe);
             
-            // 检测是否跳转成功
+            // 跳转检测（2秒超时）
             setTimeout(() => {
                 document.body.removeChild(iframe);
                 
-                // 如果还在当前页面，说明跳转失败
+                // 跳转失败处理
                 if (!document.hidden) {
                     if (/MicroMessenger/i.test(navigator.userAgent)) {
-                        alert("微信内无法直接跳转，请点击右上角...选择在浏览器打开");
+                        // 微信内显示提示
+                        document.body.innerHTML = `
+                            <div style="padding:20px;text-align:center;">
+                                <h2 style="color:#f44336;">微信内无法直接打开支付宝</h2>
+                                <p>请点击右上角...选择「在浏览器打开」</p>
+                                <p>或手动复制账号到支付宝转账：</p>
+                                <p><strong>账号：${paymentConfig.account}</strong></p>
+                                <p><strong>姓名：${paymentConfig.name}</strong></p>
+                            </div>
+                        `;
                     } else {
-                        // 备用方案：显示账号信息让用户手动复制
-                        const msg = `跳转失败，请手动打开支付宝转账至：\n账号：${config.account}\n姓名：${config.name}`;
-                        alert(msg);
+                        // 其他浏览器使用官方H5跳转
+                        const h5Url = `https://render.alipay.com/p/s/i?scheme=${encodeURIComponent(deepLink)}`;
+                        window.location.href = h5Url;
                     }
                 }
             }, 2000);
         }
 
-        // 下载支付宝APP
-        function downloadAlipay() {
-            const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const downloadUrl = isiOS ? 
-                "https://apps.apple.com/cn/app/%E6%94%AF%E4%BB%98%E5%AE%9D-%E8%AE%A9%E7%94%9F%E6%B4%BB%E6%9B%B4%E7%AE%80%E5%8D%95/id333206289" :
-                "https://dl.alipay.com/alipaydesktop/alipay_app.latest.apk";
-            
-            window.open(downloadUrl);
-        }
-
+        // 页面加载立即执行
+        window.onload = autoRedirect;
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .loading {
+            margin-top: 50px;
+            color: #1677FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <p>正在跳转到支付宝...</p>
+    </div>
 </body>
 </html>
