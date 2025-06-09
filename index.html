@@ -132,13 +132,6 @@
             window.open(downloadUrl);
         }
 
-        // 页面加载时检测微信环境
-        window.onload = function() {
-            if (/MicroMessenger/i.test(navigator.userAgent)) {
-                document.querySelector('.tips').innerHTML += 
-                    '<p style="color:#f00;">检测到微信内打开，请点击右上角...选择在浏览器打开</p>';
-            }
-        };
     </script>
 </body>
 </html>
